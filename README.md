@@ -141,6 +141,13 @@ Se hai un Ubuntu già installato senza la regola polkit o con il vecchio
   il formato corretto è FAT16.
 - **su di LineageOS**: nelle build `userdebug` `/product/bin/su` copre quello
   di Magisk; via ADB usa `/debug_ramdisk/su`.
+- **Primo avvio di Ubuntu**: il filesystem viene ingrandito fino a tutta la
+  partizione. Se lo interrompi (per esempio tornando subito ad Android) resta
+  piccolo e con errori (`EXT4-fs error … bad block bitmap checksum`) e
+  Ubuntu si blocca. Si ripara da Android con root, a partizione smontata:
+  `e2fsck -f -y /dev/block/by-name/linux_root` e poi
+  `resize2fs /dev/block/by-name/linux_root`. Gli script in `magisk/` si
+  rifiutano di scrivere su un filesystem con errori.
 - **fastboot bloccato** dopo flash grandi (seriale `????`): stacca e riattacca il cavo.
 
 ## Ritorno ad Android puro
