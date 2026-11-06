@@ -1,0 +1,9 @@
+// Mi 9T dual boot: "Torna ad Android" without a password for the phone's
+// user (sudo group) sitting at the phone. Only this one program is allowed.
+polkit.addRule(function(action, subject) {
+	if (action.id == "org.freedesktop.policykit.exec" &&
+	    action.lookup("program") == "/usr/local/sbin/torna-ad-android" &&
+	    subject.local && subject.active && subject.isInGroup("sudo")) {
+		return polkit.Result.YES;
+	}
+});

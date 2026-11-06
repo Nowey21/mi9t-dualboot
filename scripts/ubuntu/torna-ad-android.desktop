@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Torna ad Android
+Comment=Ripristina boot e dtbo di Android e riavvia
+Exec=/usr/local/sbin/torna-ad-android
+Icon=system-reboot
+Terminal=false
+Categories=System;

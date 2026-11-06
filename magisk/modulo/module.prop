@@ -1,0 +1,6 @@
+id=mi9t_dualboot
+name=Passa a Ubuntu
+version=1.0
+versionCode=1
+author=mi9t dual boot
+description=Mi 9T dual boot: tocca "Azione" per salvare boot/dtbo di Android in linux_esp e riavviare in Ubuntu.

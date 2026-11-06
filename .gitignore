@@ -1,0 +1,15 @@
+# Whitelist: only scripts, docs and patches are published. Everything else
+# (backup/ with persist, modem/IMEI partitions and GPT, immagini/ with the
+# rootfs and its password hash, boot images, Magisk APK) stays local.
+*
+!.gitignore
+!README.md
+!LICENSE
+!scripts/
+!scripts/**
+!patches/
+!patches/**
+!magisk/
+!magisk/*.sh
+!magisk/modulo/
+!magisk/modulo/**

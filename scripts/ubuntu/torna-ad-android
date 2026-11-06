@@ -1,0 +1,30 @@
+#!/bin/sh
+# Dual boot Mi 9T: put Android's boot and dtbo back and restart into Android.
+# Prefers the copy the Android "Passa a Ubuntu" button leaves on the ESP
+# (/boot/efi/android, always current); falls back to the copy taken before
+# Ubuntu was installed (/var/lib/mi9t-dualboot).
+#   sudo torna-ad-android
+set -eu
+[ "$(id -u)" = 0 ] || exec pkexec "$0" "$@"
+D=
+for c in /boot/efi/android /var/lib/mi9t-dualboot; do
+	[ -f "$c/SHA256SUMS" ] || continue
+	if (cd "$c" && sha256sum -c --quiet SHA256SUMS); then D=$c; break; fi
+	echo "$c: checksum errato, la salto" >&2
+done
+[ -n "$D" ] || { echo "nessuna copia valida di boot/dtbo" >&2; exit 1; }
+echo "copia usata: $D"
+cd "$D"
+for p in dtbo boot; do
+	dev=$(readlink -f "/dev/disk/by-partlabel/$p")
+	[ -b "$dev" ] || { echo "partition $p not found" >&2; exit 1; }
+	[ "$(blockdev --getsize64 "$dev")" = "$(stat -c %s "$p.img")" ] ||
+		{ echo "$p: size differs from the backup, nothing written" >&2; exit 1; }
+done
+for p in dtbo boot; do
+	echo "writing $p"
+	dd if="$p.img" of="/dev/disk/by-partlabel/$p" bs=4M conv=fsync status=none
+done
+sync
+echo "Android restored, restarting"
+systemctl reboot

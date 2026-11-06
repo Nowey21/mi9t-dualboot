@@ -1,0 +1,46 @@
+From a7fb7cdf7574bf0dfa73f295f3a5bdb1ad06964a Mon Sep 17 00:00:00 2001
+From: Nowey21 <132582838+Nowey21@users.noreply.github.com>
+Date: Fri, 6 Nov 2026 15:30:08 +0100
+Subject: [PATCH 2/2] ESP: FAT16 with 4096-byte sectors (U-Boot rejects a
+ 512-byte FAT on UFS) and sda20/sda22
+
+---
+ image/build-image.sh | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/image/build-image.sh b/image/build-image.sh
+index 7322a01..5fb5e84 100755
+--- a/image/build-image.sh
++++ b/image/build-image.sh
+@@ -6,8 +6,8 @@
+ #
+ # Output in dist/image/ (flash with scripts/flash/flash.py):
+ #   uboot.img    U-Boot as an Android boot image     -> boot
+-#   esp.img      FAT32: systemd-boot, kernel, DTB    -> cache (/dev/sda30)
+-#   rootfs.img   ext4 root filesystem, sparse        -> userdata (/dev/sda32)
++#   esp.img      FAT32: systemd-boot, kernel, DTB    -> linux_esp (/dev/sda20)
++#   rootfs.img   ext4 root filesystem, sparse        -> linux_root (/dev/sda22)
+ #   SHA256SUMS
+ #
+ # Inputs, from the environment:
+@@ -92,7 +92,7 @@ log "ESP: systemd-boot, kernel, device tree"
+ ESP=$WORK/esp.img
+ rm -f "$ESP"
+ truncate -s 256M "$ESP"
+-mkfs.vfat -F 32 -n ESP "$ESP" >/dev/null
++mkfs.vfat -F 16 -S 4096 -s 1 -n ESP "$ESP" >/dev/null
+ export MTOOLS_SKIP_CHECK=1
+ mmd -i "$ESP" ::/EFI ::/EFI/BOOT ::/loader ::/loader/entries ::/dtbs ::/dtbs/qcom
+ mcopy -i "$ESP" "$R/usr/lib/systemd/boot/efi/systemd-bootaa64.efi" ::/EFI/BOOT/BOOTAA64.EFI
+@@ -104,7 +104,7 @@ title Ubuntu
+ sort-key aaa
+ linux /vmlinuz-fix
+ devicetree /dtbs/qcom/sm7150-xiaomi-davinci-battery-final.dtb
+-options root=/dev/sda32 rw rootwait console=tty0 console=ttyGS0,115200 loglevel=4 arm_smmu.disable_bypass=0 quiet
++options root=/dev/sda22 rw rootwait console=tty0 console=ttyGS0,115200 loglevel=4 arm_smmu.disable_bypass=0 quiet
+ EOF
+ mcopy -i "$ESP" "$WORK/loader.conf" ::/loader/loader.conf
+ mcopy -i "$ESP" "$WORK/ubuntu.conf" ::/loader/entries/ubuntu.conf
+-- 
+2.53.0
+
